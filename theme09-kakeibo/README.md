@@ -44,8 +44,8 @@ theme09-kakeibo/
 
 ## 実装上の条件
 
-- 1件の記録は record（例：`record Entry(LocalDate date, Type type, String category, int amount, String memo)`）で表す
-- 区分（収入・支出）は enum で表す
+- 1件の記録は record（例：`record Entry(LocalDate date, EntryType type, String category, int amount, String memo)`）で表す
+- 区分（収入・支出）は enum（例：`EntryType`）で表す。`Type` という名前にすると、JFrameを継承したクラスの中で `java.awt.Window.Type` と名前がぶつかってコンパイルエラーになるので使わない
 - 日付は `java.time.LocalDate`、月は `java.time.YearMonth` で扱う
 - 集計は Stream（`filter`、`mapToInt`、`sum`、`Collectors.groupingBy`）で書く
 - 一覧表は `JTable` と `DefaultTableModel` で表示する
