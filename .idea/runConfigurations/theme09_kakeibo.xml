@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="テーマ09 家計簿" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="kakeibo.Main" />
+    <module name="theme09-kakeibo" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

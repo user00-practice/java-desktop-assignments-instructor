@@ -1,0 +1,19 @@
+# IntelliJ IDEA
+# クローンしてすぐ実行できるよう、プロジェクト構成と実行構成だけはGitで共有する
+.idea/*
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/encodings.xml
+!.idea/runConfigurations/
+
+# ビルド成果物
+out/
+*.class
+
+# アプリの実行時に作られるデータファイル
+theme06-todo/todo.txt
+theme09-kakeibo/kakeibo.csv
+
+# OSが作るファイル
+.DS_Store
+Thumbs.db

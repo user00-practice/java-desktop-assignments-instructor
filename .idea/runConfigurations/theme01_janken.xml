@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="テーマ01 じゃんけん" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="janken.Main" />
+    <module name="theme01-janken" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

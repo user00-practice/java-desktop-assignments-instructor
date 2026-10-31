@@ -1,0 +1,10 @@
+apple の意味は？,りんご,みかん,ぶどう,もも
+book の意味は？,本,机,鉛筆,窓
+Javaで整数を表す型は？,int,String,boolean,char
+Javaで文字列を表す型は？,String,int,double,boolean
+true か false を表す型は？,boolean,int,String,char
+画面に文字を表示する命令は？,System.out.println,Math.max,Integer.parseInt,List.of
+繰り返し処理に使う文は？,for,if,switch,return
+条件分岐に使う文は？,if,for,while,class
+CPUの主な役割は？,計算や命令の実行,データの長期保存,画面の表示,音の出力
+1バイトは何ビット？,8,4,16,32
