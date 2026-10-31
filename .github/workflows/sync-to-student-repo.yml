@@ -1,0 +1,82 @@
+name: 受講者用リポジトリへ自動同期
+
+# main ブランチに push されたときに実行する。
+# ただし answer/・teacher/ フォルダ「だけ」の変更では実行しない（無駄な同期を避けるため）。
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "answer/**"
+      - "teacher/**"
+      - "SETUP.md"
+      - "README.md"
+  workflow_dispatch: # Actionsタブから手動実行もできるようにする（動作確認・トラブル対応用）
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 講師用リポジトリ（このリポジトリ）を source/ にチェックアウトする
+      - name: 講師用リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      # 2. 受講者用リポジトリを student-repo/ にチェックアウトする
+      #    書き込み権限を持つトークン（Secrets の STUDENT_REPO_TOKEN）が必要。
+      #    ↓ repository の値は、あなたの受講者用リポジトリに書き換えてください。
+      - name: 受講者用リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          repository: user00-practice/java-desktop-assignments-student # ← ここを書き換える
+          token: ${{ secrets.STUDENT_REPO_TOKEN }}
+          path: student-repo
+
+      # 3. answer/・teacher/ など講師専用ファイルを除いたコピーを build/ に作る
+      #    README.md / SETUP.md も講師向けの内容（除外フォルダの説明を含む）なので同期しない。
+      #    代わりに STUDENT_README.md を README.md として配置する。
+      - name: 講師専用フォルダを除外してコピー
+        run: |
+          rm -rf build
+          mkdir build
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='answer/' \
+            --exclude='teacher/' \
+            --exclude='SETUP.md' \
+            --exclude='README.md' \
+            --exclude='STUDENT_README.md' \
+            source/ build/
+          cp source/STUDENT_README.md build/README.md
+
+      # 4. 念のため、除外漏れがないかチェックする（安全対策の二重化）
+      - name: 除外漏れがないことを確認
+        run: |
+          LEAK=$(find build -iname '*answer*' -o -iname '*teacher*' || true)
+          if [ -n "$LEAK" ]; then
+            echo "::error::講師専用ファイルが受講者側ビルドに残っています。ワークフローの除外設定を確認してください。"
+            echo "$LEAK"
+            exit 1
+          fi
+
+      # 5. build/ の内容を受講者用リポジトリへミラーリングする（余分なファイルは削除）
+      - name: 受講者用リポジトリへ反映
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            build/ student-repo/
+
+      # 6. 変更があればコミット＆プッシュする（差分がなければ何もしない）
+      - name: コミット＆プッシュ
+        working-directory: student-repo
+        run: |
+          git config user.name "java-desktop-sync-bot"
+          git config user.email "sync-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "変更なし。プッシュをスキップします。"
+            exit 0
+          fi
+          git commit -m "Sync from instructor repo (${GITHUB_SHA::7})"
+          git push origin HEAD:main
