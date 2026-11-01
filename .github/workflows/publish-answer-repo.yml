@@ -1,0 +1,81 @@
+name: 解答例リポジトリへ公開
+
+# 解答例の公開は、講師が決めたタイミングで行う。
+# そのため push では実行せず、Actionsタブの「Run workflow」ボタンからの手動実行だけにしている。
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: "解答例を受講者に公開してよい場合はチェックする"
+        type: boolean
+        required: true
+        default: false
+
+jobs:
+  publish:
+    # チェックを入れずに実行した場合は、何もせずに終わる（誤操作の防止）
+    if: ${{ inputs.confirm }}
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 講師用リポジトリ（このリポジトリ）を source/ にチェックアウトする
+      - name: 講師用リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      # 2. 解答例リポジトリを answer-repo/ にチェックアウトする
+      #    トークンは ANSWER_REPO_TOKEN があればそれを、無ければ STUDENT_REPO_TOKEN を使う。
+      #    （受講者用のトークンの対象に解答例リポジトリを追加した場合は、新しいシークレットは不要）
+      #    ↓ repository の値は、あなたの解答例リポジトリに書き換えてください。
+      - name: 解答例リポジトリをチェックアウト
+        uses: actions/checkout@v4
+        with:
+          repository: user00-practice/java-desktop-assignments-answer # ← ここを書き換える
+          token: ${{ secrets.ANSWER_REPO_TOKEN || secrets.STUDENT_REPO_TOKEN }}
+          path: answer-repo
+
+      # 3. answer/ の中身を build/ にコピーする
+      #    answer/README.md は講師向けなので送らず、代わりに PUBLIC_README.md を README.md として置く。
+      #    README から表示するロゴもコピーする。
+      - name: 解答例をコピー
+        run: |
+          rm -rf build
+          mkdir build
+          rsync -a \
+            --exclude='README.md' \
+            --exclude='PUBLIC_README.md' \
+            source/answer/ build/
+          cp source/answer/PUBLIC_README.md build/README.md
+          mkdir -p build/docs/images
+          cp source/docs/images/class_logo.png build/docs/images/
+
+      # 4. 講師向けの記述が混ざっていないか確認する（安全対策）
+      - name: 講師向けの記述が無いことを確認
+        run: |
+          LEAK=$(grep -rlE "講師専用|指導のポイント|instructor" build || true)
+          if [ -n "$LEAK" ]; then
+            echo "::error::講師向けの記述を含むファイルがあります。公開を中止しました。"
+            echo "$LEAK"
+            exit 1
+          fi
+
+      # 5. build/ の内容を解答例リポジトリへミラーリングする（余分なファイルは削除）
+      - name: 解答例リポジトリへ反映
+        run: |
+          rsync -a --delete \
+            --exclude='.git/' \
+            build/ answer-repo/
+
+      # 6. 変更があればコミット＆プッシュする（差分がなければ何もしない）
+      - name: コミット＆プッシュ
+        working-directory: answer-repo
+        run: |
+          git config user.name "java-desktop-sync-bot"
+          git config user.email "sync-bot@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "変更なし。プッシュをスキップします。"
+            exit 0
+          fi
+          git commit -m "Publish answers from instructor repo (${GITHUB_SHA::7})"
+          git push origin HEAD:main
