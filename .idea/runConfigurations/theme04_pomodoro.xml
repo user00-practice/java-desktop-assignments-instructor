@@ -2,6 +2,7 @@
   <configuration default="false" name="テーマ04 ポモドーロタイマー" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="pomodoro.Main" />
     <module name="theme04-pomodoro" />
+    <option name="VM_PARAMETERS" value="-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8" />
     <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
     <method v="2">
       <option name="Make" enabled="true" />

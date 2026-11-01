@@ -1,0 +1,10 @@
+# 解答例プロジェクト（answer/ を IntelliJ で単独のプロジェクトとして開く）用
+.idea/*
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/encodings.xml
+!.idea/libraries/
+!.idea/runConfigurations/
+out/
+theme06-todo/todo.txt
+theme09-kakeibo/kakeibo.csv
