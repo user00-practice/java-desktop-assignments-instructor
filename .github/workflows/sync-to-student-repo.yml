@@ -28,7 +28,7 @@ jobs:
       - name: 受講者用リポジトリをチェックアウト
         uses: actions/checkout@v4
         with:
-          repository: user00-practice/java-desktop-assignments-student # ← ここを書き換える
+          repository: YOUR_ACCOUNT/java-desktop-assignments-student # ← ここを書き換える
           token: ${{ secrets.STUDENT_REPO_TOKEN }}
           path: student-repo
 
@@ -41,12 +41,12 @@ jobs:
           mkdir build
           rsync -a \
             --exclude='.git/' \
-            --exclude='.github/' \
-            --exclude='answer/' \
-            --exclude='teacher/' \
-            --exclude='SETUP.md' \
-            --exclude='README.md' \
-            --exclude='STUDENT_README.md' \
+            --exclude='/.github/' \
+            --exclude='/answer/' \
+            --exclude='/teacher/' \
+            --exclude='/SETUP.md' \
+            --exclude='/README.md' \
+            --exclude='/STUDENT_README.md' \
             source/ build/
           cp source/STUDENT_README.md build/README.md
 

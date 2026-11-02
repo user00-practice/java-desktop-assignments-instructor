@@ -30,20 +30,21 @@ jobs:
       - name: 解答例リポジトリをチェックアウト
         uses: actions/checkout@v4
         with:
-          repository: user00-practice/java-desktop-assignments-answer # ← ここを書き換える
+          repository: YOUR_ACCOUNT/java-desktop-assignments-answer # ← ここを書き換える
           token: ${{ secrets.ANSWER_REPO_TOKEN || secrets.STUDENT_REPO_TOKEN }}
           path: answer-repo
 
       # 3. answer/ の中身を build/ にコピーする
       #    answer/README.md は講師向けなので送らず、代わりに PUBLIC_README.md を README.md として置く。
       #    README から表示するロゴもコピーする。
+      #    除外パターンの先頭の / は「answer/ の直下だけ」という意味（下の階層の同名ファイルは除外しない）。
       - name: 解答例をコピー
         run: |
           rm -rf build
           mkdir build
           rsync -a \
-            --exclude='README.md' \
-            --exclude='PUBLIC_README.md' \
+            --exclude='/README.md' \
+            --exclude='/PUBLIC_README.md' \
             source/answer/ build/
           cp source/answer/PUBLIC_README.md build/README.md
           mkdir -p build/docs/images
