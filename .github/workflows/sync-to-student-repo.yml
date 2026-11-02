@@ -28,7 +28,7 @@ jobs:
       - name: 受講者用リポジトリをチェックアウト
         uses: actions/checkout@v4
         with:
-          repository: YOUR_ACCOUNT/java-desktop-assignments-student # ← ここを書き換える
+          repository: user00-practice/java-desktop-assignments-student # ← ここを書き換える
           token: ${{ secrets.STUDENT_REPO_TOKEN }}
           path: student-repo
 
